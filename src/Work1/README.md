@@ -186,8 +186,11 @@ if __name__ == '__main__':
 ```
 uv run -m src.Work1.main
 ```
-- 注意：将src目录作为一个模块来执行里面的main文件
+- 注意：将src目录作为一个模块来执行里面的main文件，输入法处于英文状态
 - 运行后会弹出窗口，按A键（逆时针旋转）或D键（顺时针旋转）控制三角形，按ESC退出
+## 演示视频
+![TRIANGLE](https://github.com/user-attachments/assets/9d74a124-1a7c-4777-a3bc-06c901c3b82c)
+
 ## 自定义参数
 你可以修改main.py中的参数调整效果：
 - 顶点坐标：修改vertices[0]/[1]/[2] 的值改变三角形形状与位置
