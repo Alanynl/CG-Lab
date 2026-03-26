@@ -1,41 +1,44 @@
-Taichi 3D 变换演示
-一个基于 Taichi 框架实现的 3D 坐标变换演示程序，通过键盘交互控制三角形绕 Z 轴旋转，完整展示模型变换、视图变换与透视投影的经典渲染管线流程。
-项目介绍
-本项目为计算机图形学实验课项目，利用 Taichi 框架的并行计算能力，实现了从 3D 顶点到 2D 屏幕坐标的完整变换：
-实现模型变换（绕 Z 轴旋转）、视图变换（相机定位）、透视投影变换
-支持键盘交互（a/d键）控制旋转角度
-清晰展示 MVP 矩阵组合、透视除法与视口变换过程
-技术栈
-Python 3.8+
-Taichi 1.6.0+ (并行计算核心框架)
-uv
-Git
-环境准备
+# Taichi 3D 变换演示
+一个基于Taichi框架实现的3D坐标变换演示程序，通过键盘交互控制三角形绕Z轴旋转，完整展示模型变换、视图变换与透视投影的经典渲染管线流程。
+## 项目介绍
+本项目为计算机图形学实验课项目，利用Taichi框架的并行计算能力，实现了从3D顶点到2D屏幕坐标的完整变换：
+1. 实现模型变换（绕Z轴旋转）、视图变换、透视投影变换
+2. 支持键盘交互（A/D键）控制旋转角度
+3. 清晰展示MVP矩阵组合、透视除法与视口变换过程
+## 技术栈
+- Python 3.8+
+- Taichi 1.6.0+
+- uv
+- Git
+## 环境准备
 1. 安装 uv
-plaintext
+```
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
 2. 配置 uv
-plaintext
+```
 uv init --python 3.12
 uv sync
+```
 3. 安装 Taichi 包
-plaintext
+```
 uv add taichi
-项目结构
+```
+## 项目结构
 将代码按以下结构组织：
-plaintext
+```
 CG-Lab/
 │
 ├── pyproject.toml        # 项目依赖管理文件
-├── README.md             # 项目说明文档
 └── src/
     └── Work1/
         ├── __init__.py
-        └── main.py       # 主程序入口（包含完整变换逻辑）
-文件内容
-main.py（完整 3D 变换逻辑）
-python
-运行
+        ├── README.md     # 项目说明文档
+        └── main.py       # 主程序入口
+```
+## 文件内容
+#### main.py
+```
 import taichi as ti
 import math
 
@@ -178,21 +181,22 @@ def main():
 
 if __name__ == '__main__':
     main()
-运行程序
-plaintext
+```
+## 运行程序
+```
 uv run -m src.Work1.main
-注意：将 src 目录作为一个模块来执行里面的 main 文件
-运行后会弹出窗口，按 a 键（逆时针旋转）或 d 键（顺时针旋转）控制三角形，按 ESC 退出
-自定义参数
-你可以修改 main.py 中的参数调整效果：
-顶点坐标：修改 vertices[0]/[1]/[2] 的值改变三角形形状与位置
-相机位置：修改 eye_pos 调整观察视角
-透视参数：修改 get_projection_matrix 的 eye_fov（视角）、zNear/zFar（近远平面）
-旋转步长：修改 angle += 10.0 中的数值调整旋转速度
-常见问题
-运行无反应 / 报错：
-检查 Taichi 版本：uv add taichi@latest 升级到最新版
-若 GPU 不支持，将 ti.init(arch=ti.cpu) 保持 CPU 模式（代码默认 CPU）
-窗口显示异常：
-确认顶点坐标在视锥体范围内（z 值在 zNear 和 zFar 之间）
-检查 aspect_ratio 与窗口分辨率比例是否匹配
+```
+- 注意：将src目录作为一个模块来执行里面的main文件
+- 运行后会弹出窗口，按A键（逆时针旋转）或D键（顺时针旋转）控制三角形，按ESC退出
+## 自定义参数
+你可以修改main.py中的参数调整效果：
+- 顶点坐标：修改vertices[0]/[1]/[2] 的值改变三角形形状与位置
+- 透视参数：修改get_projection_matrix 的 eye_fov（视角）、zNear/zFar（近远平面）
+- 旋转步长：修改angle += 10.0 中的数值调整旋转速度
+## 常见问题
+#### 运行无反应/报错：
+- 检查 Taichi 版本：uv add taichi@latest 升级到最新版
+- 若 GPU 不支持，将 ti.init(arch=ti.cpu) 保持 CPU 模式（代码默认 CPU）
+#### 窗口显示异常：
+- 确认顶点坐标在视锥体范围内（z值在zNear和zFar之间）
+- 检查 aspect_ratio 与窗口分辨率比例是否匹配
