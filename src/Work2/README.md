@@ -212,8 +212,7 @@ uv run -m src.Work2.main
 - ESC键：关闭窗口
 
 ## 演示视频
-
-
+https://github.com/Alanynl/CG-Lab/blob/main/src/Work2/Bezier_main.gif
 
 ## 选做内容
 ### 1.选做1：高亮反走样贝塞尔曲线（optional_1.py）
@@ -406,6 +405,7 @@ if __name__ == "__main__":
 uv run -m src.Work2.optional_1
 ```
 ### 演示视频
+https://github.com/Alanynl/CG-Lab/blob/main/src/Work2/Bezier_op1.gif
 
 ### 2.选做2：贝塞尔/B样条曲线切换（optional_2.py）
 扩展基础版功能，支持贝塞尔曲线与均匀三次 B 样条曲线的切换，增加模式指示器，完善交互逻辑。
@@ -642,6 +642,7 @@ if __name__ == "__main__":
 uv run -m src.Work2.optional_2
 ```
 ### 演示视频
+https://github.com/Alanynl/CG-Lab/blob/main/src/Work2/Bezier_op2.gif
 
 ## 自定义参数
 ```
