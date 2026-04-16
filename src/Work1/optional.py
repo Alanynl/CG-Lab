@@ -1,19 +1,15 @@
 import taichi as ti
 import math
 
-# 初始化 Taichi，指定使用 CPU 后端（可切换为 ti.gpu 启用GPU加速）
 ti.init(arch=ti.cpu)
 
-# ---------------------- 修改1：定义立方体的顶点数和边数 ----------------------
-NUM_VERTICES = 8  # 立方体8个顶点
-NUM_EDGES = 12    # 立方体12条边
+NUM_VERTICES = 8
+NUM_EDGES = 12
 
-# 声明 Taichi 的 Field 来存储顶点和转换后的屏幕坐标
 vertices = ti.Vector.field(3, dtype=ti.f32, shape=NUM_VERTICES)
 screen_coords = ti.Vector.field(2, dtype=ti.f32, shape=NUM_VERTICES)
 
-# ---------------------- 修改2：定义立方体12条边的顶点索引对 ----------------------
-# 每条边用 (顶点1索引, 顶点2索引) 表示
+# 定义立方体12条边的顶点索引对，每条边用 (顶点1索引, 顶点2索引) 表示
 edges = [
     (0, 1), (1, 3), (3, 2), (2, 0),  # 前面（z=1）
     (4, 5), (5, 7), (7, 6), (6, 4),  # 后面（z=-1）
@@ -25,7 +21,7 @@ def get_model_matrix(angle_y: float, angle_z: float):
     """
     模型变换矩阵：绕 Y 轴和 Z 轴旋转（增强3D效果）
     """
-    # 绕 Y 轴旋转矩阵
+    # 绕Y轴旋转矩阵
     rad_y = angle_y * math.pi / 180.0
     c_y = ti.cos(rad_y)
     s_y = ti.sin(rad_y)
@@ -36,7 +32,7 @@ def get_model_matrix(angle_y: float, angle_z: float):
         [0.0,  0.0, 0.0, 1.0]
     ])
     
-    # 绕 Z 轴旋转矩阵
+    # 绕Z轴旋转矩阵
     rad_z = angle_z * math.pi / 180.0
     c_z = ti.cos(rad_z)
     s_z = ti.sin(rad_z)
@@ -47,7 +43,7 @@ def get_model_matrix(angle_y: float, angle_z: float):
         [0.0,  0.0, 0.0, 1.0]
     ])
     
-    # 组合旋转：先绕Y轴，再绕Z轴
+    # 先绕Y轴，再绕Z轴
     return rot_z @ rot_y
 
 @ti.func
@@ -67,7 +63,7 @@ def get_projection_matrix(eye_fov: float, aspect_ratio: float, zNear: float, zFa
     """
     透视投影矩阵
     """
-    # 视线看向 -Z 轴，实际坐标为负
+    # 视线看向-Z轴，实际坐标为负
     n = -zNear
     f = -zFar
     
@@ -78,7 +74,7 @@ def get_projection_matrix(eye_fov: float, aspect_ratio: float, zNear: float, zFa
     r = aspect_ratio * t
     l = -r
     
-    # 1. 挤压矩阵: 透视平截头体 -> 长方体
+    # 挤压矩阵: 透视平截头体 -> 长方体
     M_p2o = ti.Matrix([
         [n, 0.0, 0.0, 0.0],
         [0.0, n, 0.0, 0.0],
@@ -86,7 +82,7 @@ def get_projection_matrix(eye_fov: float, aspect_ratio: float, zNear: float, zFa
         [0.0, 0.0, 1.0, 0.0]
     ])
     
-    # 2. 正交投影矩阵: 缩放与平移至 [-1, 1]^3
+    # 正交投影矩阵: 缩放与平移至 [-1, 1]^3
     M_ortho_scale = ti.Matrix([
         [2.0 / (r - l), 0.0, 0.0, 0.0],
         [0.0, 2.0 / (t - b), 0.0, 0.0],
@@ -103,7 +99,6 @@ def get_projection_matrix(eye_fov: float, aspect_ratio: float, zNear: float, zFa
     
     M_ortho = M_ortho_scale @ M_ortho_trans
     
-    # 返回组合矩阵
     return M_ortho @ M_p2o
 
 @ti.kernel
@@ -116,17 +111,17 @@ def compute_transform(angle_y: float, angle_z: float):
     view = get_view_matrix(eye_pos)
     proj = get_projection_matrix(45.0, 1.0, 0.1, 50.0)
     
-    # MVP 矩阵：右乘原则
+    # MVP矩阵
     mvp = proj @ view @ model
     
-    # ---------------------- 修改3：遍历8个顶点进行变换 ----------------------
+    # 遍历8个顶点进行变换
     for i in range(NUM_VERTICES):
         v = vertices[i]
         # 补全齐次坐标
         v4 = ti.Vector([v[0], v[1], v[2], 1.0])
         v_clip = mvp @ v4
         
-        # 透视除法，转化为 NDC 坐标 [-1, 1]
+        # 透视除法，转化为NDC坐标
         v_ndc = v_clip / v_clip[3]
         
         # 视口变换：映射到 GUI 的 [0, 1] x [0, 1] 空间
@@ -134,7 +129,7 @@ def compute_transform(angle_y: float, angle_z: float):
         screen_coords[i][1] = (v_ndc[1] + 1.0) / 2.0
 
 def main():
-    # ---------------------- 修改4：初始化立方体的8个顶点（中心在原点，边长2） ----------------------
+    # 初始化立方体的8个顶点
     # 顶点顺序：前面(z=1)的四个点 -> 后面(z=-1)的四个点
     vertices[0] = [1.0, 1.0, 1.0]   # 前右上
     vertices[1] = [1.0, 1.0, -1.0]  # 前左上
@@ -145,7 +140,7 @@ def main():
     vertices[6] = [-1.0, -1.0, 1.0] # 后右下
     vertices[7] = [-1.0, -1.0, -1.0]# 后左下
     
-    # 创建 GUI 窗口
+    # 创建GUI窗口
     gui = ti.GUI("3D Cube with Perspective (Taichi)", res=(700, 700))
     angle_y = 0.0  # 绕Y轴旋转角度
     angle_z = 0.0  # 绕Z轴旋转角度
@@ -153,23 +148,20 @@ def main():
     while gui.running:
         if gui.get_event(ti.GUI.PRESS):
             if gui.event.key == 'a':
-                angle_y += 10.0  # 按a键绕Y轴逆时针转
+                angle_y += 10.0  # 按A键绕Y轴逆时针转
             elif gui.event.key == 'd':
-                angle_y -= 10.0  # 按d键绕Y轴顺时针转
+                angle_y -= 10.0  # 按D键绕Y轴顺时针转
             elif gui.event.key == 'w':
-                angle_z += 10.0  # 按w键绕Z轴逆时针转
+                angle_z += 10.0  # 按W键绕Z轴逆时针转
             elif gui.event.key == 's':
-                angle_z -= 10.0  # 按s键绕Z轴顺时针转
+                angle_z -= 10.0  # 按S键绕Z轴顺时针转
             elif gui.event.key == ti.GUI.ESCAPE:
                 gui.running = False
-        
-        # 自动缓慢旋转（可选，注释掉可完全手动控制）
-        # angle_y += 0.5
-        
+
         # 计算变换
         compute_transform(angle_y, angle_z)
         
-        # ---------------------- 修改5：遍历12条边进行绘制 ----------------------
+        # 遍历12条边进行绘制
         for v1, v2 in edges:
             a = screen_coords[v1]
             b = screen_coords[v2]
