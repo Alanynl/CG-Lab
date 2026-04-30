@@ -47,7 +47,7 @@ def draw_control_points(points: ti.types.ndarray(), num: ti.i32):
                     if 0 <= px+dx < W and 0 <= py+dy < H:
                         pixels[px+dx, py+dy] = ti.Vector(COLOR_POINT, ti.u8)
 
-# 绘制绿色虚线（已修复索引错误）
+# 绘制绿色虚线
 @ti.kernel
 def draw_green_dashed_lines(points: ti.types.ndarray(), num: ti.i32):
     for k in range(num - 1):
@@ -85,7 +85,6 @@ def draw_green_dashed_lines(points: ti.types.ndarray(), num: ti.i32):
                 err += dx
                 y += sy
 
-# ===================== 核心：超级高亮 + 加粗 反走样曲线 =====================
 @ti.kernel
 def draw_antialiased_bezier():
     brightness = 2.0  # 亮度拉满2倍
@@ -110,7 +109,7 @@ def draw_antialiased_bezier():
                     weight = ti.max(0.0, 1.0 - dist / 3.0)
                     weight = weight ** 0.5  # 增强亮度
 
-                    # 颜色计算（限制最大值255）
+                    # 颜色计算
                     r = ti.u8(ti.min(255, COLOR_CURVE[0] * weight * brightness))
                     g = ti.u8(ti.min(255, COLOR_CURVE[1] * weight * brightness))
                     b = ti.u8(ti.min(255, COLOR_CURVE[2] * weight * brightness))
@@ -125,8 +124,6 @@ def de_casteljau(pts, t):
         for i in range(k):
             p[i] = (1-t)*p[i] + t*p[i+1]
     return p[0]
-
-# 主程序
 if __name__ == "__main__":
     window = ti.ui.Window("高亮反走样贝塞尔曲线", (W, H))
     canvas = window.get_canvas()

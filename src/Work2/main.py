@@ -65,7 +65,6 @@ def draw_green_dashed_lines(points: ti.types.ndarray(), num: ti.i32):
         y = ti.cast(y0_int, ti.i32)
         
         while True:
-            # 虚线逻辑：一段画，一段空
             if step % (DASH_STEP + DASH_GAP) < DASH_STEP:
                 for dw in range(-LINE_WIDTH//2, LINE_WIDTH//2+1):
                     for dh in range(-LINE_WIDTH//2, LINE_WIDTH//2+1):

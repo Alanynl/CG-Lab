@@ -2,17 +2,15 @@ import taichi as ti
 import numpy as np
 import os
 
-# ===================== 环境配置 =====================
 os.environ["TI_WITH_VULKAN"] = "0"
 os.environ["TI_RENDER_BACKEND"] = "cpu"
 ti.init(arch=ti.cuda)
 
-# ===================== 基础配置 =====================
+# 基础配置
 W, H = 800, 800
 MAX_SAMPLING = 1500
 MAX_POINTS = 100
 
-# ===================== 视觉样式 =====================
 POINT_RADIUS = 6
 LINE_WIDTH  = 2
 DASH_STEP   = 12
@@ -26,17 +24,14 @@ COLOR_CURVE   = (255, 255, 0)
 COLOR_BEZIER  = (255, 0, 0)
 COLOR_BSPLINE = (0, 0, 255)
 
-# ===================== Taichi Field =====================
 pixels = ti.Vector.field(3, ti.u8, (W, H))
 curve_points_field = ti.Vector.field(2, ti.f32, MAX_SAMPLING)
 
-# ===================== 清屏 =====================
 @ti.kernel
 def clear():
     for i, j in pixels:
         pixels[i, j] = ti.Vector([0, 0, 0], ti.u8)
 
-# ===================== 模式指示器 =====================
 @ti.kernel
 def draw_mode_indicator(is_bezier: ti.i32):
     for x in range(10, 30):
@@ -46,7 +41,7 @@ def draw_mode_indicator(is_bezier: ti.i32):
             else:
                 pixels[x, y] = ti.Vector(COLOR_BSPLINE, ti.u8)
 
-# ===================== 绘制控制点 =====================
+# 绘制控制点
 @ti.kernel
 def draw_control_points(points: ti.types.ndarray(), num: ti.i32):
     for k in range(num):
@@ -59,7 +54,6 @@ def draw_control_points(points: ti.types.ndarray(), num: ti.i32):
                     if 0 <= px+dx < W and 0 <= py+dy < H:
                         pixels[px+dx, py+dy] = ti.Vector(COLOR_POINT, ti.u8)
 
-# ===================== 绘制虚线 =====================
 @ti.kernel
 def draw_green_dashed_lines(points: ti.types.ndarray(), num: ti.i32):
     for k in range(num - 1):
@@ -97,7 +91,7 @@ def draw_green_dashed_lines(points: ti.types.ndarray(), num: ti.i32):
                 err += dx
                 y += sy
 
-# ===================== 绘制曲线 =====================
+# 绘制曲线
 @ti.kernel
 def draw_antialiased_curve(curve_points: ti.template(), total_points: ti.i32):
     for i in range(total_points):
@@ -121,7 +115,7 @@ def draw_antialiased_curve(curve_points: ti.template(), total_points: ti.i32):
                     b = ti.u8(ti.min(255, COLOR_CURVE[2] * weight * BRIGHTNESS))
                     pixels[x, y] = ti.Vector([r, g, b], ti.u8)
 
-# ===================== 贝塞尔曲线 =====================
+# 贝塞尔曲线
 def de_casteljau(pts, t):
     p = pts.copy()
     n = len(p)
@@ -141,7 +135,7 @@ def compute_bezier_points(control_points):
         curve_points[i] = de_casteljau(control_points, t)
     return curve_points
 
-# ===================== B样条曲线 =====================
+# B样条曲线
 M_BSPLINE = np.array([
     [-1,  3, -3,  1],
     [ 3, -6,  3,  0],
@@ -169,7 +163,6 @@ def compute_uniform_cubic_bspline_points(control_points):
             curve_points[seg_idx * samples_per_segment + sample_idx] = pt
     return curve_points
 
-# ===================== 主程序 =====================
 if __name__ == "__main__":
     window = ti.ui.Window("贝塞尔/B样条", res=(W, H))
     canvas = window.get_canvas()
@@ -187,7 +180,6 @@ if __name__ == "__main__":
                 if 0<=mpx+dx<W and 0<=mpy+dy<H:
                     pixels[mpx+dx, mpy+dy] = ti.Vector(COLOR_POINT, ti.u8)
 
-        # ===================== 【正确】事件处理 =====================
         for e in window.get_events(ti.ui.PRESS):
             if e.key == ti.ui.LMB:
                 if len(control_points) < MAX_POINTS:
