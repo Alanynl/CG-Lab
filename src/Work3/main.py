@@ -87,7 +87,6 @@ def ray_cone_intersect(origin: vec3, dir: vec3):
                     
             if t > 0:
                 p_local = ro_local + dir * t
-                # ✅ 修复：使用正确的法向量计算（去掉错误的H项）
                 normal = normalize(vec3(p_local.x, -k * p_local.y, p_local.z))
     return t, normal
 

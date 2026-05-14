@@ -1,10 +1,8 @@
 import taichi as ti
 import math
 
-# 初始化Taichi CUDA后端
 ti.init(arch=ti.cuda)
 
-# ===================== 全局常量（对齐参考图参数） =====================
 WIDTH = 800
 HEIGHT = 800
 EPS = 1e-4           # 自相交偏移量
@@ -16,12 +14,12 @@ BG_COLOR = ti.Vector([0.05, 0.15, 0.2])  # 深青蓝色背景
 MAT_DIFFUSE = 0
 MAT_MIRROR = 1
 
-# ===================== 全局渲染字段 =====================
+# 全局渲染字段 
 pixels = ti.Vector.field(3, dtype=ti.f32, shape=(WIDTH, HEIGHT))
 light_pos = ti.Vector.field(3, dtype=ti.f32, shape=())
 max_bounces = ti.field(ti.f32, shape=())
 
-# ===================== 光线求交 =====================
+# 光线求交
 @ti.func
 def ray_intersect(ray_origin: ti.template(), ray_dir: ti.template()):
     hit = False
@@ -31,7 +29,7 @@ def ray_intersect(ray_origin: ti.template(), ray_dir: ti.template()):
     mat_id = MAT_DIFFUSE
     obj_color = ti.Vector([0.0, 0.0, 0.0])
 
-    # 1. 红色漫反射球（左球）
+    # 红色漫反射球（左球）
     sphere_center = ti.Vector([-1.5, 0.0, 0.0])
     sphere_radius = 1.0
     oc = ray_origin - sphere_center
@@ -49,7 +47,7 @@ def ray_intersect(ray_origin: ti.template(), ray_dir: ti.template()):
             mat_id = MAT_DIFFUSE
             obj_color = ti.Vector([1.0, 0.1, 0.1])
 
-    # 2. 银色镜面球（右球）
+    # 银色镜面球（右球）
     sphere_center2 = ti.Vector([1.5, 0.0, 0.0])
     sphere_radius2 = 1.0
     oc2 = ray_origin - sphere_center2
@@ -67,7 +65,7 @@ def ray_intersect(ray_origin: ti.template(), ray_dir: ti.template()):
             mat_id = MAT_MIRROR
             obj_color = ti.Vector([0.95, 0.95, 0.95])
 
-    # 3. 地面棋盘格
+    # 地面棋盘格
     plane_y = -1.0
     plane_normal = ti.Vector([0.0, 1.0, 0.0])
     if abs(ray_dir.y) > 1e-6:
@@ -83,7 +81,7 @@ def ray_intersect(ray_origin: ti.template(), ray_dir: ti.template()):
 
     return hit, closest_t, hit_p, hit_n, mat_id, obj_color
 
-# ===================== 硬阴影检测 =====================
+# 硬阴影检测
 @ti.func
 def is_shadowed(p: ti.template(), n: ti.template()):
     light_dir = light_pos[None] - p
@@ -93,7 +91,7 @@ def is_shadowed(p: ti.template(), n: ti.template()):
     hit, t_hit, _, _, _, _ = ray_intersect(shadow_ro, shadow_ray_dir)
     return hit and (t_hit < light_dist)
 
-# ===================== 漫反射着色 =====================
+# 漫反射着色
 @ti.func
 def shade_diffuse(p: ti.template(), n: ti.template(), color: ti.template()):
     col = AMBIENT * color
@@ -103,7 +101,7 @@ def shade_diffuse(p: ti.template(), n: ti.template(), color: ti.template()):
         col += diffuse * color
     return col
 
-# ===================== 核心修复：迭代式光线追踪（反射逻辑正确） =====================
+# 迭代式光线追踪
 @ti.kernel
 def render():
     camera_pos = ti.Vector([0.0, 0.0, 4.0])
@@ -120,7 +118,7 @@ def render():
         throughput = 1.0
         final_color = ti.Vector([0.0, 0.0, 0.0])
         
-        # -------------------------- 修复点1：弹射计数逻辑 --------------------------
+        # 弹射计数逻辑
         bounce_times = 0
         while True:
             hit, _, hit_p, hit_n, mat_id, obj_color = ray_intersect(ray_ro, ray_rd)
@@ -154,11 +152,11 @@ def render():
 
         pixels[i, j] = final_color
 
-# ===================== UI交互 =====================
+# UI交互
 def main():
-    # 默认光源位置（匹配参考图）
+    # 默认光源位置
     light_pos[None] = [1.571, 4.0, 3.0]
-    # 默认3次 → 有反射！
+    # 默认3次 → 有反射
     max_bounces[None] = 3.0
 
     window = ti.ui.Window("Ray Tracing Demo", (WIDTH, HEIGHT))

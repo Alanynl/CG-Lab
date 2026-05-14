@@ -54,7 +54,7 @@ def ray_sphere_intersect(origin: vec3, dir: vec3, center: vec3, radius: ti.f32):
             normal = normalize(p - center)
     return t, normal
 
-# 圆锥求交（修复法向量，光照正常）
+# 圆锥求交
 @ti.func
 def ray_cone_intersect(origin: vec3, dir: vec3):
     t = -1.0

@@ -1,10 +1,10 @@
 import taichi as ti
 import taichi.math as tm
 
-# 初始化Taichi CUDA后端（添加debug=True便于调试）
+# 初始化Taichi CUDA后端
 ti.init(arch=ti.cuda, debug=True)
 
-# ===================== 全局常量与类型定义 =====================
+# 全局常量与类型定义
 WIDTH = 800
 HEIGHT = 800
 EPS = 1e-4
@@ -15,12 +15,12 @@ BG_COLOR = ti.Vector([0.05, 0.15, 0.2])  # 1.7.4不支持dtype参数
 MSAA_SAMPLES = 4
 AIR_IOR = 1.0
 GLASS_IOR = 1.5
-# 材质ID（用整数常量，避免类型混淆）
+# 材质ID
 MAT_DIFFUSE = 0
 MAT_MIRROR = 1
 MAT_GLASS = 2
 
-# 定义相交结果结构体（解决多返回值类型匹配问题）
+# 定义相交结果结构体
 IntersectResult = ti.types.struct(
     hit=ti.i32,          # 0=False, 1=True（用i32避免布尔类型问题）
     closest_t=ti.f32,
@@ -31,12 +31,12 @@ IntersectResult = ti.types.struct(
     is_front_face=ti.i32  # 0=False, 1=True
 )
 
-# ===================== 全局字段（严格类型定义） =====================
+# 全局字段（严格类型定义）
 pixels = ti.Vector.field(3, dtype=ti.f32, shape=(WIDTH, HEIGHT))
 light_pos = ti.Vector.field(3, dtype=ti.f32, shape=())
 max_bounces = ti.field(ti.f32, shape=())
 
-# ===================== 斯涅尔定律：折射计算（单一return） =====================
+# 斯涅尔定律：折射计算
 @ti.func
 def refract(ray_dir: ti.template(), normal: ti.template(), ior_ratio: ti.f32):
     """计算折射光线方向，返回(是否全反射, 方向向量)"""
@@ -57,11 +57,10 @@ def refract(ray_dir: ti.template(), normal: ti.template(), ior_ratio: ti.f32):
     
     return is_total_reflect, result_dir
 
-# ===================== 光线求交（核心修复：用结构体返回） =====================
+# 光线求交（用结构体返回）
 @ti.func
 def ray_intersect(ray_origin: ti.template(), ray_dir: ti.template()) -> IntersectResult:
     """光线-物体相交检测，返回结构化结果（避免类型不匹配）"""
-    # 初始化结果结构体，所有字段显式类型
     res = IntersectResult(
         hit=ti.i32(0),
         closest_t=ti.f32(tm.inf),
@@ -72,7 +71,7 @@ def ray_intersect(ray_origin: ti.template(), ray_dir: ti.template()) -> Intersec
         is_front_face=ti.i32(1)
     )
 
-    # 1. 玻璃球（原红球）
+    # 玻璃球（原红球）
     sphere_center = ti.Vector([-1.5, 0.0, 0.0], dt=ti.f32)
     sphere_radius = ti.f32(1.0)
     oc = ray_origin - sphere_center
@@ -94,7 +93,7 @@ def ray_intersect(ray_origin: ti.template(), ray_dir: ti.template()) -> Intersec
             res.mat_id = ti.i32(MAT_GLASS)
             res.obj_color = ti.Vector([0.95, 0.98, 1.0], dt=ti.f32)
 
-    # 2. 镜面球
+    # 镜面球
     sphere_center2 = ti.Vector([1.5, 0.0, 0.0], dt=ti.f32)
     sphere_radius2 = ti.f32(1.0)
     oc2 = ray_origin - sphere_center2
@@ -112,7 +111,7 @@ def ray_intersect(ray_origin: ti.template(), ray_dir: ti.template()) -> Intersec
             res.mat_id = ti.i32(MAT_MIRROR)
             res.obj_color = ti.Vector([0.95, 0.95, 0.95], dt=ti.f32)
 
-    # 3. 棋盘格地面
+    # 棋盘格地面
     plane_y = ti.f32(-1.0)
     plane_normal = ti.Vector([0.0, 1.0, 0.0], dt=ti.f32)
     if abs(ray_dir.y) > 1e-6:
@@ -131,9 +130,9 @@ def ray_intersect(ray_origin: ti.template(), ray_dir: ti.template()) -> Intersec
             else:
                 res.obj_color = ti.Vector([0.1, 0.1, 0.1], dt=ti.f32)
 
-    return res  # 单一return，符合Taichi 1.7.4要求
+    return res
 
-# ===================== 硬阴影检测 =====================
+# 硬阴影检测
 @ti.func
 def is_shadowed(p: ti.template(), n: ti.template()) -> ti.i32:
     light_dir = light_pos[None] - p
@@ -143,7 +142,7 @@ def is_shadowed(p: ti.template(), n: ti.template()) -> ti.i32:
     res = ray_intersect(shadow_ro, shadow_ray_dir)
     return ti.i32(1) if (res.hit and (res.closest_t < light_dist)) else ti.i32(0)
 
-# ===================== 漫反射着色 =====================
+# 漫反射着色
 @ti.func
 def shade_diffuse(p: ti.template(), n: ti.template(), color: ti.template()) -> ti.template():
     col = AMBIENT * color
@@ -153,7 +152,7 @@ def shade_diffuse(p: ti.template(), n: ti.template(), color: ti.template()) -> t
         col += diffuse * color
     return col
 
-# ===================== 渲染主核（修复类型转换） =====================
+# 渲染主核
 @ti.kernel
 def render():
     camera_pos = ti.Vector([0.0, 0.0, 4.0], dt=ti.f32)
@@ -164,7 +163,6 @@ def render():
         
         # MSAA 4倍抗锯齿
         for _ in range(MSAA_SAMPLES):
-            # Taichi原生随机数，避免Python random的兼容性问题
             du = (ti.random(ti.f32)-0.5) / ti.cast(WIDTH, ti.f32)
             dv = (ti.random(ti.f32)-0.5) / ti.cast(HEIGHT, ti.f32)
             uv_x = (ti.cast(i, ti.f32) + du) / ti.cast(WIDTH, ti.f32)
@@ -227,7 +225,7 @@ def render():
         # 所有采样结果取平均
         pixels[i, j] = final_color / ti.cast(MSAA_SAMPLES, ti.f32)
 
-# ===================== UI交互 =====================
+# UI交互
 def main():
     # 默认光源位置和弹射次数
     light_pos[None] = ti.Vector([1.571, 4.0, 3.0], dt=ti.f32)
