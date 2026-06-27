@@ -1,3 +1,6 @@
+- 姓名：陈蓝薪
+- 学号：202411998405
+- 专业：人工智能
 # 奶牛模型可微渲染剪影优化实验
 基于PyTorch3D实现的奶牛3D模型剪影驱动形变优化系统，通过多视角剪影损失约束，实现从初始球体到奶牛模型的高精度几何重建，支持6视角（正背+4斜向）联合优化，适配CUDA加速计算。
 
@@ -209,6 +212,13 @@ conda activate pytorch3d_env
 # 运行主程序
 python src/Work5/main.py
 ```
+
+## 结果展示
+<img width="1174" height="1249" alt="优化（1500）" src="https://github.com/user-attachments/assets/699c879e-b185-4931-8485-edc1348c0afd" />
+<img width="1224" height="1116" alt="优化结果对比" src="https://github.com/user-attachments/assets/1ded3c75-adfc-4bbb-9101-bdcd1a76497e" />
+<img width="1500" height="687" alt="优化损失函数" src="https://github.com/user-attachments/assets/6429ca3f-2f5b-476b-accf-908dbe2f133f" />
+<img width="679" height="388" alt="输出" src="https://github.com/user-attachments/assets/d7c4e798-6500-4cea-808d-42577566edbc" />
+
 
 ## 交互说明
 - 自动训练过程：程序启动后自动执行3000轮优化，每300轮显示一次正面/背面剪影对比
