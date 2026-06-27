@@ -214,7 +214,7 @@ if __name__ == "__main__":
 uv run -m src.Work3.main
 ```
 ## 演示视频
-
+<img width="480" height="507" alt="Work3_main" src="https://github.com/user-attachments/assets/84facbb5-8c61-426a-910f-64ccb7873ccc" />
 
 ## 选做内容
 ### 选做1： optional_1.py（Blinn-Phong:优化光照）
@@ -383,7 +383,7 @@ if __name__ == "__main__":
     main()
 ```
 #### 演示视频
-
+<img width="480" height="507" alt="Work3_op1" src="https://github.com/user-attachments/assets/64bd86b5-3447-4ed0-a899-e0b37d40d087" />
 
 ### 选做2：optional_2.py（Phong 光照 + 硬阴影）
 核心新增：硬阴影检测函数:shadow_check
@@ -570,7 +570,7 @@ if __name__ == "__main__":
     main()
 ```
 #### 演示视频
-
+<img width="480" height="507" alt="Work3_op2" src="https://github.com/user-attachments/assets/2b280155-f975-4eb1-bd56-15f42075f404" />
 
 ## 交互说明
 - 程序启动后自动渲染3D场景（红色球体 + 紫色圆锥）
