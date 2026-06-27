@@ -1,3 +1,6 @@
+- 姓名：陈蓝薪
+- 学号：202411998405
+- 专业：人工智能
 # Taichi Whitted‑Style 光线追踪实验
 一个基于Taichi框架实现的迭代式GPU光线追踪演示程序，严格遵循Whitted‑Style全局光照模型，基础功能实现硬阴影、镜面反射、棋盘格地面、交互 UI；选做版本扩展玻璃折射材质（斯涅尔定律 + 全反射）、MSAA多采样抗锯齿，适配Taichi 1.7.4，解决GPU递归限制、自相交阴影噪点、类型崩溃等底层问题。
 ## 项目介绍
@@ -220,6 +223,10 @@ if __name__ == "__main__":
 ```
 uv run -m src.Work4.main
 ```
+
+## 演示视频
+<img width="480" height="507" alt="Work4_main" src="https://github.com/user-attachments/assets/ffe6682b-5cba-43d6-bbc0-293e0ca28a90" />
+
 ## 选做内容
 optional.py：选做完整版（折射 + 抗锯齿）
 在基础版上实现两项选做加分项：玻璃透明折射材质（斯涅尔定律、全反射判定）、MSAA 4倍抗锯齿；
@@ -480,6 +487,10 @@ if __name__ == "__main__":
 ```
 uv run -m src.Work4.optional
 ```
+
+### 演示视频
+<img width="480" height="507" alt="Work4_op" src="https://github.com/user-attachments/assets/ebb7e06f-3989-4657-9572-3b1bbdcc2eac" />
+
 ### 优化点
 1. 选做 1：玻璃折射材质
 - 左侧红球改造为透明玻璃材质，实现斯涅尔定律折射计算；
