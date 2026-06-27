@@ -1,3 +1,6 @@
+- 姓名：陈蓝薪
+- 学号：202411998405
+- 专业：人工智能
 # Taichi 质点-弹簧布料物理模拟实验
 一个基于Taichi框架实现GPU并行布料仿真程序，采用胡克定律+阻尼构建质点弹簧系统，基础功能实现结构弹簧、三种欧拉数值积分、实时GUI控制面板；选做版本扩展剪切+弯曲双类型弹簧、球体碰撞检测，适配Taichi 1.7.4，解决显式欧拉数值爆炸、GPU并行原子写入、Kernel嵌套报错等问题。
 ## 项目介绍
@@ -264,6 +267,9 @@ if __name__ == "__main__":
 ```
 uv run -m src.Work6.main
 ```
+## 演示视频
+<img width="480" height="507" alt="Work6_main" src="https://github.com/user-attachments/assets/92a1095d-3e04-4e4e-af25-e79edb2a9fdf" />
+
 ## 选做内容
 optional.py：选做完整版（剪切+弯曲全弹簧 + 球体碰撞检测）
 在基础版上拓展两类额外弹簧、实现布料与球体碰撞，GUI增加碰撞开关，碰撞采用质点距离判定+位置修正防穿透。
@@ -540,6 +546,9 @@ if __name__ == "__main__":
 ```
 uv run -m src.Work6.optional
 ```
+### 演示视频
+<img width="480" height="507" alt="Work6_op" src="https://github.com/user-attachments/assets/fdd7e5d7-c8fe-46d9-bbb5-956d5b07d16d" />
+
 ### 优化点
 1. 选做1：三种弹簧拓展
 - 原有结构弹簧+对角线剪切弹簧+隔点弯曲弹簧；
